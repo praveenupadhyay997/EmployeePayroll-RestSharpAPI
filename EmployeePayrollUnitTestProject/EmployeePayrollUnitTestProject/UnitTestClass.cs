@@ -123,5 +123,34 @@ namespace EmployeePayrollUnitTestProject
                 Assert.AreEqual(employeeData.salary, employeeDataResponse.salary);
             });
         }
+        /// <summary>
+        /// TC 4 -- On calling the employee rest API after the data update return the updated Employee data of the schema stored inside the database
+        /// </summary>
+        [TestMethod]
+        public void UpdateDataInEmplyeeRestAPI_ValidateUpdateSuccess()
+        {
+                /// Arrange
+                /// Adding the request to put or update data to the rest api
+                RestRequest request = new RestRequest("/employees/9", Method.PUT);
+
+                /// Instantinating a Json object to host the employee in json format
+                JObject jObject = new JObject();
+                /// Adding the data attribute with data elements
+                jObject.Add("name", "Archana");
+                jObject.Add("salary", "50000");
+                /// Adding parameter to the rest request jObject - contains the parameter list of the json database
+                request.AddParameter("application/json", jObject, ParameterType.RequestBody);
+                /// Act
+                /// Adding the data to the json server in json format
+                IRestResponse response = restClient.Execute(request);
+                /// Assert
+                Assert.AreEqual(response.StatusCode, System.Net.HttpStatusCode.OK);
+                /// Getting the recently added data as json format and then deserialise it to Employee object
+                Employee employeeDataResponse = JsonConvert.DeserializeObject<Employee>(response.Content);
+                /// Assert updated data
+                Assert.AreEqual("Archana", employeeDataResponse.name);
+                Assert.AreEqual("50000", employeeDataResponse.salary);
+                Console.WriteLine(response.Content);
+        }
     }
 }
