@@ -8,6 +8,7 @@ namespace EmployeePayrollUnitTestProject
 {
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using RestSharp;
     using System.Collections.Generic;
     using System.Net;
@@ -58,6 +59,30 @@ namespace EmployeePayrollUnitTestProject
             {
                 System.Console.WriteLine($"ID : {employee.id} , Name : {employee.name}, Salary : {employee.salary}");
             }
+        }
+        /// <summary>
+        /// TC 2 -- On calling the employee rest API return the Employee data of the schema stored inside the database
+        /// </summary>
+        [TestMethod]
+        public void OnAddingTheEmplyeeRestAPI_ValidateSuccessFullCount()
+        {
+            /// Arrange
+            RestRequest restRequest = new RestRequest("/employees", Method.POST);
+            /// Instantinating a json object
+            JObject jObject = new JObject();
+            /// Adding the data attribute with data elements
+            jObject.Add("name", "Maruti");
+            jObject.Add("salary", "10000");
+            /// Adding parameter to the rest request
+            restRequest.AddParameter("application/json", jObject, ParameterType.RequestBody);
+            /// Act
+            IRestResponse restResponse = restClient.Execute(restRequest);
+            /// Assert
+            Assert.AreEqual(restResponse.StatusCode, HttpStatusCode.Created);
+            /// Getting the recently added data as json format and then deserialise it to Employee object
+            Employee employeeDateResponse = JsonConvert.DeserializeObject<Employee>(restResponse.Content);
+            Assert.AreEqual("Maruti", employeeDateResponse.name);
+            Assert.AreEqual("10000", employeeDateResponse.salary);
         }
     }
 }
