@@ -10,6 +10,7 @@ namespace EmployeePayrollUnitTestProject
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using RestSharp;
+    using System;
     using System.Collections.Generic;
     using System.Net;
 
@@ -61,7 +62,7 @@ namespace EmployeePayrollUnitTestProject
             }
         }
         /// <summary>
-        /// TC 2 -- On calling the employee rest API return the Employee data of the schema stored inside the database
+        /// TC 2 -- On calling the employee rest API after the data addition return the Employee data of the schema stored inside the database
         /// </summary>
         [TestMethod]
         public void OnAddingTheEmplyeeRestAPI_ValidateSuccessFullCount()
@@ -77,12 +78,50 @@ namespace EmployeePayrollUnitTestProject
             restRequest.AddParameter("application/json", jObject, ParameterType.RequestBody);
             /// Act
             IRestResponse restResponse = restClient.Execute(restRequest);
-            /// Assert
+            /// Assert 201-- Code for post
             Assert.AreEqual(restResponse.StatusCode, HttpStatusCode.Created);
             /// Getting the recently added data as json format and then deserialise it to Employee object
             Employee employeeDateResponse = JsonConvert.DeserializeObject<Employee>(restResponse.Content);
             Assert.AreEqual("Maruti", employeeDateResponse.name);
             Assert.AreEqual("10000", employeeDateResponse.salary);
+        }
+        /// <summary>
+        /// TC 3 -- On calling the employee rest API after the data addition return the Employee data of the schema stored inside the database
+        /// </summary>
+        [TestMethod]
+        public void MultipleAdditionToTheEmplyeeRestAPI_ValidateSuccessFullCount()
+        {
+            /// Storing multiple employee data to a list
+            List<Employee> employeeList = new List<Employee>();
+            /// Adding the data to the list
+            employeeList.Add(new Employee { name = "Krishna", salary = "60000" });
+            employeeList.Add(new Employee { name = "Kapil", salary = "50000" });
+            employeeList.Add(new Employee { name = "Archana", salary = "40000" });
+            /// Iterating over the employee list to get each instance
+            employeeList.ForEach(employeeData =>
+            {
+                /// Arrange
+                /// adding the request to post data to the rest api
+                RestRequest request = new RestRequest("/employees", Method.POST);
+
+                /// Instantinating a Json object to host the employee in json format
+                JObject jObject = new JObject();
+                /// Adding the data attribute with data elements
+                jObject.Add("name", employeeData.name);
+                jObject.Add("salary", employeeData.salary);
+                /// Adding parameter to the rest request jObject - contains the parameter list of the json database
+                request.AddParameter("application/json", jObject, ParameterType.RequestBody);
+                /// Act
+                /// Adding the data to the json server in json format
+                IRestResponse response = restClient.Execute(request);
+                /// Assert
+                /// 201-- Code for post
+                Assert.AreEqual(response.StatusCode, System.Net.HttpStatusCode.Created);
+                /// Getting the recently added data as json format and then deserialise it to Employee object
+                Employee employeeDataResponse = JsonConvert.DeserializeObject<Employee>(response.Content);
+                Assert.AreEqual(employeeData.name, employeeDataResponse.name);
+                Assert.AreEqual(employeeData.salary, employeeDataResponse.salary);
+            });
         }
     }
 }
