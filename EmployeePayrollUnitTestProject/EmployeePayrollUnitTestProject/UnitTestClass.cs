@@ -152,5 +152,22 @@ namespace EmployeePayrollUnitTestProject
                 Assert.AreEqual("50000", employeeDataResponse.salary);
                 Console.WriteLine(response.Content);
         }
+        /// <summary>
+        /// TC 5 -- On calling the employee rest API after the data delete return the arret value with status code
+        /// </summary>
+        [TestMethod]
+        public void DeleteDataInEmplyeeRestAPI_ValidateDeleteSuccess()
+        {
+            /// Arrange
+            /// Adding the request to put or update data to the rest api
+            RestRequest request = new RestRequest("/employees/9", Method.DELETE);
+            /// Act
+            /// Adding the data to the json server in json format
+            IRestResponse response = restClient.Execute(request);
+            /// Assert
+            Assert.AreEqual(response.StatusCode, System.Net.HttpStatusCode.OK);
+            /// Printing the respose content after delete operation
+            Console.WriteLine(response.Content);
+        }
     }
 }
